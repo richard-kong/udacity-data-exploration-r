@@ -23,7 +23,7 @@ wine = read.csv('wineQualityReds.csv')
 ```
 
 # Univariate Plots Section
-```{r echo = FALSE}
+```{r echo = FALSE,fig.width=10}
 summary(wine)
 ```
 
@@ -45,7 +45,7 @@ summary(wine)
 First, I will try to get an understanding of the variables with potential strong right skews. Then I will have a look at some of the other interesting variables in the dataset.
 
 
-```{r echo = FALSE, Univariate_Plots}
+```{r echo = FALSE, fig.width=10, Univariate_Plots}
 
 ggplot(data = wine, 
        aes(x = volatile.acidity))  + 
@@ -127,7 +127,7 @@ In this plot there is a large range of values with a long tail caused by a handf
 
 I don't really understand what density is. I think plotting a histogram of values would help.
 
-```{r echo = FALSE}
+```{r echo = FALSE, warning=FALSE}
 ggplot(data = wine, 
        aes(x = density))  + 
   geom_histogram()
@@ -157,6 +157,7 @@ The most common alcohol levels in the wine was less than 10. This was somewhat s
 Our main variable of interest is quality. We need to understand what each of the ratings mean by examining how many wines are assigned to each we can start determining which ratings mean low, medium and high quality.
 
 ```{r echo = FALSE}
+#Add a factor verson of quality into the dataset
 wine$quality_factor <- factor(wine$quality)
 
 ggplot(data = wine, 
@@ -196,7 +197,7 @@ I plan to investigate the variables that have an impact on taste or aroma of the
 No unusual distributions. No data cleaning performed
 
 # Bivariate Plots Section
-```{r echo = FALSE, Bivariate_Plots}
+```{r echo = FALSE, fig.width=10, fig.height=10, Bivariate_Plots}
 pairs.panels(subset
              (wine,
              select = !names(wine) 
@@ -255,7 +256,7 @@ These plots illustrate that **higher quality wines tend to have higher levels of
 Next, I wanted to take a look at the relationship between **volatile acidity and quality** which had a correlation value of `r cor(wine$quality, wine$volatile.acidity) ` 
 
 
-```{r echo = FALSE}
+```{r echo = FALSE, warning=FALSE}
 
 ggplot(data = wine, 
        aes(x = quality_factor, 
@@ -318,7 +319,8 @@ As I mentioned earlier I don't really have a good understanding of what density 
 
 First I want to see how **alcohol effects density**. These 2 variables have a correlation value of `r cor(wine$density, wine$alcohol) `
 
-```{r echo = FALSE}
+```{r echo = FALSE, warning=FALSE}
+#plot with limited x and y axis, jittered and alpha set to avoid overplotting. Add a fitted line.
 ggplot(data = wine, 
        aes(y = density, 
            x = alcohol))  +
@@ -330,6 +332,7 @@ ggplot(data = wine,
               color = 'red',
               aes(group = 1)) 
 
+#group density values into quartiles so we can compare statistics across the quartiles
 wine$density.bucket <- 
   cut(wine$density,
       quantile(
@@ -356,9 +359,6 @@ The next few plots, I will look at the variables that also have a high correlati
 **Fixed acidity and density** have a correlation value of `r cor(wine$density, wine$fixed.acidity) `. Citric acid and density have a correlation value of `r cor(wine$density,wine$citric.acid) `
 
 ```{r echo = FALSE}
-
-
-
 ggplot(data = wine, 
        aes(y = density, 
            x = fixed.acidity))  +  
@@ -430,7 +430,7 @@ I want to take a closer look at the relationships between the various acids are,
 **Volatile acidity and citric acid** have a correlation value of `r cor(wine$citric.acid,wine$volatile.acidity) `
 
 
-```{r echo = FALSE}
+```{r echo = FALSE, warning=FALSE}
 ggplot(data = wine, 
        aes(y=citric.acid, 
            x = volatile.acidity))  +  
@@ -442,6 +442,7 @@ ggplot(data = wine,
               color = 'red',
               aes(group = 1)) 
 
+#Add a variable to enable grouping of volatile acidity into quartile buckets so that statistics can be compared across them
 wine$volatile.acidity.bucket <- 
   cut(wine$volatile.acidity,
       quantile(
@@ -460,12 +461,13 @@ There were some outliers with high citric acid and/or volatile acid which were r
 
 **Citric acid and fixed acidity** have a correlation of `r cor(wine$citric.acid,wine$fixed.acidity) `. 
 
-```{r echo = FALSE}
+```{r echo = FALSE, warning=FALSE}
 ggplot(data = wine, 
        aes(x = citric.acid, 
            y = fixed.acidity)) +
   geom_point()
 
+#Add a variable to enable grouping of fixed acidity into quartile buckets so that statistics can be compared across them
 wine$fixed.acidity.bucket <- 
   cut(wine$fixed.acidity,
       quantile(
@@ -486,7 +488,7 @@ I didn't expect this, since as the level of acids raise in wine, the sourness wo
 How would changes in levels of these effect pH? Does one type of acid increase the pH level more than the other? **Citric/fixed acid and pH** have correlation values of `r cor(wine$citric.acid,wine$pH) ` and `r cor(wine$fixed.acidity,wine$pH) ` respectively.
 
 
-```{r echo = FALSE}
+```{r echo = FALSE, warning=FALSE}
 
 ggplot(data = wine, 
        aes(y = fixed.acidity, 
@@ -507,7 +509,7 @@ ggplot(data = wine,
               color = 'red',
               aes(group = 1))
 
-
+#Add a variable to enable grouping of pH into quartile buckets so that statistics can be compared across them
 wine$pH.bucket <- 
   cut(wine$pH,
       quantile(
@@ -530,6 +532,7 @@ I am still not satisfied that I understand the reason for the relationship betwe
 So, I am going to have a look at the ratios of citric acid to fixed acidity to see what ratios the wines in the sample have.
 
 ```{r echo = FALSE}
+#Calculate the ratio of citric acidity to fixed acidity
 wine$citric.to.fixed.acid.ratio <- 
   wine$citric.acid/ 
   wine$fixed.acidity
@@ -551,7 +554,7 @@ The defintions suggest that Free and total sulfur dioxide seem to be related whe
 
 I want to see how they are related and how free SO2 increases as the total SO2 increases.
 
-```{r echo = FALSE}
+```{r echo = FALSE, warning=FALSE}
 ggplot(data = wine, 
        aes(y =free.sulfur.dioxide,
            x = total.sulfur.dioxide))  +  
@@ -562,7 +565,7 @@ ggplot(data = wine,
               color = 'red',
               aes(group = 1))
 
-
+#Add a variable to enable grouping of total sulfur dioxide into quartiles so that statistics can be compared across them
 wine$total.sulfur.dioxide.bucket <- 
   cut(wine$total.sulfur.dioxide,
       quantile(
@@ -582,6 +585,7 @@ tapply(
 I want to see what the distribution of the ratios between them to understand the relationship better.
 
 ```{r echo = FALSE}
+#Calculate the ratio of refree sulfur dioxide to total sulfur dioxide
 wine$free.sulfur.dioxide.ratio <- 
   wine$free.sulfur.dioxide / 
   wine$total.sulfur.dioxide
@@ -630,10 +634,11 @@ Higher volatile acidity have lower levels of citric acid. Perhaps, wine makings 
 Expanding on the findings in the bivariant section where the level of alcohol and volatile acidity both have an effect on the quality of wine. I want to see if they only act independently. So I am going to create plots of volatile acidity, alcohol and quality.
 
 ####Quality
-```{r echo = FALSE, Multivariate_Plots}
+```{r echo = FALSE, warning=FALSE,fig.width=10, Multivariate_Plots}
+#Group alcohol values into smaller ranges to use in visualisations
 wine$alcohol_bucket <- cut(wine$alcohol,
                         c(8,9,10,11,12,13,14,15))
-
+#Group volatile acidity into smaller ranges to use in visualisations
 wine$volatile.acidity.bucket <- 
   cut(wine$volatile.acidity,
       c(0, 0.3,0.6,0.9,1.2,1.5,1.8))
@@ -646,6 +651,8 @@ wine.by_alcohol_volatile_acidity <- wine %>%
             n = n()
             ) %>%
   arrange(alcohol_bucket, volatile.acidity.bucket)
+
+#Group volatile acidity into even smaller ranges for better visualisation in the next plot.
 
 wine$volatile.acidity.bucket <- 
   cut(wine$volatile.acidity,
@@ -674,7 +681,7 @@ In the bivariant plots, I saw that citric acid decreases as volatile acid increa
 
 
 ```{r echo = FALSE}
-#volatile acid, citric acid, quality
+#generate pallete from yellow to red
 mypalette<-brewer.pal(6,"YlOrRd")
 
 ggplot(data = wine, 
@@ -709,7 +716,7 @@ The relationship here is not as strong as the one with volatile acid. The cluste
 ####Density
 I want to look the effect of some of the variables to density. In the previous section I found that density increases as any acid or sugar increased and it decreased as alcohol increased. In relative terms (against each other) I want to see how these variables effect density.
 
-```{r echo = FALSE}
+```{r echo = FALSE, warning=FALSE}
 ggplot(data = wine, 
        aes(x = fixed.acidity + citric.acid + sulphates,
            y = density, 
@@ -751,7 +758,7 @@ As the total amount of acid and sulphates increases, the density also increases.
 # Final Plots and Summary
 
 ### Plot One
-```{r echo = FALSE, Plot_One}
+```{r echo = FALSE, fig.width=10, cache=TRUE, cache.path = 'cache/', fig.path='figure/', Plot_One}
 ggplot(data = wine, 
        aes(x = alcohol, 
            y = volatile.acidity, 
@@ -772,7 +779,7 @@ Red wines that were rated higher in quality have higher levels of alcohol (betwe
 
 
 ### Plot Two
-```{r echo = FALSE, Plot_Two}
+```{r echo = FALSE,fig.width=10, warning=FALSE,cache=TRUE, cache.path = 'cache/', fig.path='figure/' , Plot_Two}
 ggplot(data = wine, 
        aes(x = fixed.acidity + citric.acid + sulphates, 
            y = density, 
@@ -790,7 +797,7 @@ ggplot(data = wine,
 As the amount of fixed acidity, citric acid and sulphates increase, density also increases. This effect is offset by alcohol where higher levels result in lower density. The impact of alcohol is apparent in the reduction in density where the level of acids are the same.
 
 ### Plot Three
-```{r echo = FALSE, Plot_Three}
+```{r echo = FALSE, warning=FALSE,fig.width=10,cache=TRUE, cache.path = 'cache/', fig.path='figure/', Plot_Three}
 ggplot(data = wine, 
        aes(y=citric.acid, 
            x =volatile.acidity,  
